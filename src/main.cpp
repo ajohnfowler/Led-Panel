@@ -45,11 +45,11 @@ struct Panel
 {
   // state variables
   bool on = false;
-  uint8_t hue = 0;
-  uint8_t fade_hue = 0;
-  uint8_t saturation = 0;
-  uint8_t brightness = 32;
-  uint8_t pattern = 0;
+  byte hue = 0;
+  byte fade_hue = 0;
+  byte saturation = 0;
+  byte brightness = 32;
+  byte pattern = 0;
   CRGB leds[NUM_LEDS];
   
   // Methods
@@ -59,29 +59,11 @@ struct Panel
   }
 
   void turn_off() {
-    for (int i = 0; i < NUM_LEDS; i++) {
-      // Fade to black over time
-      leds[i].fadeToBlackBy(30);
-    }
+    // for (int i = 0; i < NUM_LEDS; i++) {
+    //   // Fade to black over time
+    //   leds[i].fadeToBlackBy(30);
+    // }
     FastLED.clear();
-    FastLED.show();
-  }
-
-  void set_hue(uint8_t value) {
-    hue = value;
-  }
-
-  void set_saturation(uint8_t value) {
-    saturation = value;
-  }
-
-  void set_brightness(uint8_t value) {
-    brightness = value;
-    FastLED.setBrightness(value);
-  }
-
-  void set_pattern(long value) {
-    pattern = value;
   }
 };
 
@@ -152,7 +134,6 @@ void color_fade()
       panel.leds[XY(x, y)] = CHSV(panel.fade_hue + x + y, 255, panel.brightness);
     }
   }
-  EVERY_N_MILLISECONDS(100) { panel.fade_hue++; }
 }
 
 // Copied from FastLEDs demoreel and modified to work with panel struct
@@ -261,19 +242,19 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
     }
     else if (strcmp(action, "hue") == 0)
     {
-      panel.set_hue(json["value"]);
+      panel.hue = json["value"];
     }
     else if (strcmp(action, "saturation") == 0)
     {
-      panel.set_saturation(json["value"]);
+      panel.saturation = json["value"];
     }
     else if (strcmp(action, "brightness") == 0)
     {
-      panel.set_brightness(json["value"]);
+      panel.brightness = json["value"];
     }
     else if (strcmp(action, "pattern") == 0)
     {
-      panel.set_pattern(json["value"]);
+      panel.pattern = json["value"];
     }
     /*else if (strcmp(action, "led") == 0)
     {
@@ -332,10 +313,14 @@ void loop()
   ws.cleanupClients();
 
   if (panel.on) {
+    FastLED.setBrightness(panel.brightness);
+
     // Show pattern here
     patterns[panel.pattern]();
-    
-    FastLED.delay(1000/FRAMES_PER_SECOND); 
-    FastLED.show();
+
+    EVERY_N_MILLISECONDS(100) { panel.fade_hue++; }
   }
+
+  FastLED.delay(1000/FRAMES_PER_SECOND); 
+  FastLED.show();
 }
