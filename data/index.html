@@ -17,16 +17,16 @@
 
     <form>
 
-        <button id="power" onclick="sendData(this)">Power</button>
+        <button id="power" onclick="sendData(this)" class="%STATE%">Power</button>
 
         <br>
 
         <label for="hue">Hue:</label>
-        <input class="range" id="hue" type="range" max="255" min="1" value="%HUE%" onchange="sendData(this)" oninput="rangeSlide(this)">
+        <input class="range" id="hue" type="range" max="255" min="0" value="%HUE%" onchange="sendData(this)" oninput="rangeSlide(this)">
         <span id="hueValue">0</span>
 
         <label>Saturation:</label>
-        <input class="range" id="saturation" type="range" max="255" min="1" value="%SATURATION%" onchange="sendData(this)" oninput="rangeSlide(this)">
+        <input class="range" id="saturation" type="range" max="255" min="0" value="%SATURATION%" onchange="sendData(this)" oninput="rangeSlide(this)">
         <span id="saturationValue">0</span>
 
         <label>Brightness:</label>
