@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="author" content="Adam Fowler">
+    <meta name="description" content="Light Panel Control UI">
+    <link rel="shortcut icon" href="#">
+    <title>Light Panel Control</title>
+    <link rel="stylesheet" href="index.css">
+    <script src="index.js"></script>
+</head>
+
+<body>
+    <h1>Light Panel Control</h1>
+
+    <label id="status" class="%STATE%"></label>
+    <button id="power" onclick="sendData(this)">Power</button>
+
+    <label>Hue</label>
+    <input id="hue" type="range" max="255" min="1" value="%HUE%" onchange="sendData(this)">
+
+    <label>Saturation</label>
+    <input id="saturation" type="range" max="255" min="1" value="%SATURATION%" onchange="sendData(this)">
+
+    <label>Brightness</label>
+    <input id="brightness" type="range" max="255" min="1" value="%BRIGHTNESS%" onchange="sendData(this)">
+
+    <select id="pattern" onchange="sendData(this)">
+        <option value="0">Color Fill</option>
+        <option value="1">Color Fade</option>
+    </select>
+</body>
+
+</html>
