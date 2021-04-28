@@ -59,6 +59,10 @@ function sendData(object) {
     }));
 }
 
+function rangeSlide(object) {
+    document.getElementById(object.id + "Value").innerHTML = object.value;
+}
+
 // ----------------------------------------------------------------------------
 // Grid Input Handling
 // ----------------------------------------------------------------------------
@@ -66,5 +70,23 @@ function sendData(object) {
 let canvas = document.getElementById('grid');
 let ctx = canvas.getContext("2d");
 
-ctx.fillStyle = "#FFFFFF";
-ctx.fillRect(0, 0, 150, 75);
+let grid_width = 30;
+let grid_height = 15;
+let cell_size = 40;
+
+canvas.width = grid_width * cell_size;
+canvas.height = grid_height * cell_size;
+
+ctx.strokeStyle = "#8A8E91";
+
+for (var x = 0; x < grid_width; x++) {
+    ctx.moveTo(x * cell_size, 0);
+    ctx.lineTo(x * cell_size, grid_height * cell_size);
+}
+
+for (var y = 0; y < grid_height; y++) {
+    ctx.moveTo(0, y * cell_size);
+    ctx.lineTo(grid_width * cell_size, y * cell_size);
+}
+
+ctx.stroke();
