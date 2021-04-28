@@ -47,7 +47,7 @@ struct Panel
   bool on = false;
   byte hue = 0;
   byte fade_hue = 0;
-  byte saturation = 0;
+  byte saturation = 255;
   byte brightness = 32;
   byte pattern = 0;
   CRGB leds[NUM_LEDS];
@@ -55,15 +55,6 @@ struct Panel
   // Methods
   void power() {
     on = !on;
-    if (!on) { turn_off(); }
-  }
-
-  void turn_off() {
-    // for (int i = 0; i < NUM_LEDS; i++) {
-    //   // Fade to black over time
-    //   leds[i].fadeToBlackBy(30);
-    // }
-    FastLED.clear();
   }
 };
 
@@ -121,7 +112,7 @@ void initFastLED()
 
 void color_fill()
 {
-  fill_solid(panel.leds, NUM_LEDS, CHSV(panel.hue, panel.saturation, panel.brightness));
+  fill_solid(panel.leds, NUM_LEDS, CHSV(panel.hue, panel.saturation, 255));
 }
 
 void color_fade()
@@ -131,7 +122,7 @@ void color_fade()
   {
     for (byte x = 0; x < MATRIX_WIDTH; x++)
     {
-      panel.leds[XY(x, y)] = CHSV(panel.fade_hue + x + y, 255, panel.brightness);
+      panel.leds[XY(x, y)] = CHSV(panel.fade_hue + x + y, 255, 255);
     }
   }
 }
@@ -250,10 +241,12 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
     }
     else if (strcmp(action, "brightness") == 0)
     {
+      FastLED.setBrightness(panel.brightness);
       panel.brightness = json["value"];
     }
     else if (strcmp(action, "pattern") == 0)
     {
+      FastLED.clear();
       panel.pattern = json["value"];
     }
     /*else if (strcmp(action, "led") == 0)
@@ -313,8 +306,6 @@ void loop()
   ws.cleanupClients();
 
   if (panel.on) {
-    FastLED.setBrightness(panel.brightness);
-
     // Show pattern here
     patterns[panel.pattern]();
 

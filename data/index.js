@@ -58,3 +58,13 @@ function sendData(object) {
         'value': object.value
     }));
 }
+
+// ----------------------------------------------------------------------------
+// Grid Input Handling
+// ----------------------------------------------------------------------------
+
+let cavas = getElementById('grid');
+let ctx = canvas.getContext('2d');
+
+ctx.fillStyle = "#FF0000";
+ctx.fillRect(0, 0, 150, 75);
