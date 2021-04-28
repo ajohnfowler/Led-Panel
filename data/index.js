@@ -63,8 +63,8 @@ function sendData(object) {
 // Grid Input Handling
 // ----------------------------------------------------------------------------
 
-let cavas = getElementById('grid');
-let ctx = canvas.getContext('2d');
+let canvas = document.getElementById('grid');
+let ctx = canvas.getContext("2d");
 
-ctx.fillStyle = "#FF0000";
+ctx.fillStyle = "#FFFFFF";
 ctx.fillRect(0, 0, 150, 75);
