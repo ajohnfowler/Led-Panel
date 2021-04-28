@@ -37,10 +37,6 @@ const uint8_t MATRIX_HEIGHT = 15;
 // Frames per seconds for animations
 const uint8_t FRAMES_PER_SECOND = 120;
 
-// Pattern list
-//typedef void (*PatternList[])();
-//PatternList patterns = { color_fill, color_fade };
-
 // ----------------------------------------------------------------------------
 // Definition of the Panel component
 // ----------------------------------------------------------------------------
@@ -99,42 +95,6 @@ AsyncWebServer server(HTTP_PORT);
 AsyncWebSocket ws("/ws");
 
 // ----------------------------------------------------------------------------
-// Patterns
-// ----------------------------------------------------------------------------
-
-void color_fill()
-{
-  fill_solid(panel.leds, NUM_LEDS, CHSV(panel.hue, panel.saturation, panel.brightness));
-}
-
-void color_fade()
-{
-  // Code to show the colors
-  for (byte y = 0; y < MATRIX_HEIGHT; y++)
-  {
-    for (byte x = 0; x < MATRIX_WIDTH; x++)
-    {
-      panel.leds[XY(x, y)] = CHSV(panel.fade_hue + x + y, 255, panel.brightness);
-    }
-  }
-  EVERY_N_MILLISECONDS(100) { panel.fade_hue++; }
-}
-
-// Copied from FastLEDs demoreel and modified to work with panel struct
-void confetti() 
-{
-  // random colored speckles that blink in and fade smoothly
-  fadeToBlackBy( leds, NUM_LEDS, 10);
-  int pos = random16(NUM_LEDS);
-  panel.leds[pos] += CHSV( panel.fade_hue + random8(64), 200, 255);
-}
-
-
-
-typedef void (*PatternList[])();
-PatternList patterns = { color_fill, color_fade };
-
-// ----------------------------------------------------------------------------
 // SPIFFS Initalzation
 // ----------------------------------------------------------------------------
 
@@ -172,6 +132,40 @@ void initFastLED()
   FastLED.addLeds<LED_TYPE, DATA_PIN, COLOR_ORDER>(panel.leds, NUM_LEDS); // Add all the leds to the array
   FastLED.setBrightness(panel.brightness);                                // Set a starting led brightness
 }
+
+// ----------------------------------------------------------------------------
+// Patterns
+// ----------------------------------------------------------------------------
+
+void color_fill()
+{
+  fill_solid(panel.leds, NUM_LEDS, CHSV(panel.hue, panel.saturation, panel.brightness));
+}
+
+void color_fade()
+{
+  // Code to show the colors
+  for (byte y = 0; y < MATRIX_HEIGHT; y++)
+  {
+    for (byte x = 0; x < MATRIX_WIDTH; x++)
+    {
+      panel.leds[XY(x, y)] = CHSV(panel.fade_hue + x + y, 255, panel.brightness);
+    }
+  }
+  EVERY_N_MILLISECONDS(100) { panel.fade_hue++; }
+}
+
+// Copied from FastLEDs demoreel and modified to work with panel struct
+void confetti() 
+{
+  // random colored speckles that blink in and fade smoothly
+  fadeToBlackBy( panel.leds, NUM_LEDS, 10);
+  int pos = random16(NUM_LEDS);
+  panel.leds[pos] += CHSV( panel.fade_hue + random8(64), 200, 255);
+}
+
+typedef void (*PatternList[])();
+PatternList patterns = { color_fill, color_fade, confetti };
 
 // ----------------------------------------------------------------------------
 // WiFi Network Initalzation
