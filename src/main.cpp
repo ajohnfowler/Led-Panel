@@ -46,15 +46,39 @@ struct Panel
   // state variables
   bool on = false;
   byte hue = 0;
-  byte fade_hue = 0;
   byte saturation = 255;
   byte brightness = 32;
   byte pattern = 0;
+  
+  byte fade_hue = 0;
   CRGB leds[NUM_LEDS];
   
   // Methods
-  void power() {
-    on = !on;
+  DynamicJsonDocument getData() {
+    DynamicJsonDocument data(1024);
+
+    data["on"] = on;
+    data["hue"] = hue;
+    data["saturation"] = saturation;
+    data["brightness"] = brightness;
+    data["pattern"] = pattern;
+    
+    return data;
+  }
+
+  void setData(DynamicJsonDocument data) {
+    clear();
+
+    on = data["power"];
+    hue = data["power"];
+    saturation = data["saturation"];
+    brightness = data["brightness"];
+    pattern = data["pattern"];
+  }
+
+  void clear() {
+    FastLED.clear();
+    FastLED.show();
   }
 };
 
@@ -163,26 +187,9 @@ void initWiFi()
 // Web Server Initalzation
 // ----------------------------------------------------------------------------
 
-String processor(const String &var)
-{
-  if(var == "STATE"){
-    return String(panel.on ? "on" : "off");
-  }
-  else if (var == "HUE"){
-    return String(panel.hue);
-  }
-  else if(var == "SATURAION"){
-    return String(panel.saturation);
-  }
-  else if(var == "BRIGHTNESS"){
-    return String(panel.brightness);
-  }
-  return String();
-}
-
 void onRootRequest(AsyncWebServerRequest *request)
 {
-  request->send(SPIFFS, "/index.html", "text/html", false, processor);
+  request->send(SPIFFS, "/index.html", "text/html", false);
 }
 
 void initWebServer()
@@ -198,15 +205,8 @@ void initWebServer()
 
 void notifyClients()
 {
-  const int size = JSON_OBJECT_SIZE(4);
-  StaticJsonDocument<size> json;
-  json["status"] = panel.on ? "on" : "off";
-  json["hue"] = panel.hue;
-  json["saturation"] = panel.saturation;
-  json["brightness"] = panel.brightness;
-
-  char buffer[150];
-  size_t len = serializeJson(json, buffer);
+  char buffer[1024];
+  size_t len = serializeJson(panel.getData(), buffer);
   ws.textAll(buffer, len);
 }
 
@@ -215,9 +215,7 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
   AwsFrameInfo *info = (AwsFrameInfo *)arg;
   if (info->final && info->index == 0 && info->len == len && info->opcode == WS_TEXT)
   {
-
-    const int size = JSON_OBJECT_SIZE(2);
-    StaticJsonDocument<size> json;
+    DynamicJsonDocument json(1024);
     DeserializationError err = deserializeJson(json, data);
     if (err)
     {
@@ -225,34 +223,7 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
       Serial.println(err.c_str());
       return;
     }
-
-    const char *action = json["action"];
-    if (strcmp(action, "power") == 0)
-    {
-      panel.power();
-    }
-    else if (strcmp(action, "hue") == 0)
-    {
-      panel.hue = json["value"];
-    }
-    else if (strcmp(action, "saturation") == 0)
-    {
-      panel.saturation = json["value"];
-    }
-    else if (strcmp(action, "brightness") == 0)
-    {
-      FastLED.setBrightness(panel.brightness);
-      panel.brightness = json["value"];
-    }
-    else if (strcmp(action, "pattern") == 0)
-    {
-      FastLED.clear();
-      panel.pattern = json["value"];
-    }
-    /*else if (strcmp(action, "led") == 0)
-    {
-      panel.set_led()
-    }*/
+    panel.setData(json);
     notifyClients();
   }
 }

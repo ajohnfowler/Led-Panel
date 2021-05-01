@@ -42,7 +42,7 @@ function onClose(event) {
 
 function onMessage(event) {
     let data = JSON.parse(event.data);
-    document.getElementById('status').innerHTML = data.status;
+    document.getElementById('on').innerHTML = data.on;
     document.getElementById('hue').value = data.hue;
     document.getElementById('saturation').value = data.saturation;
     document.getElementById('brightness').value = data.brightness;
@@ -52,15 +52,34 @@ function onMessage(event) {
 // Input Handling
 // ----------------------------------------------------------------------------
 
-function sendData(object) {
+function sendData() {
     websocket.send(JSON.stringify({
-        'action': object.id,
-        'value': object.value
+        'on': object.value,
+        'hue': 'saturation': 'brightness': 'pattern':
     }));
 }
 
 function rangeSlide(object) {
     document.getElementById(object.id + "Value").innerHTML = object.value;
+}
+
+//
+// Data Handeling
+//
+
+function getData() {
+    document.getElementById('on').value = data.on;
+    document.getElementById('hue').value = data.hue;
+    document.getElementById('saturation').value = data.saturation;
+    document.getElementById('brightness').value = data.brightness;
+}
+
+function setData() {
+    document.getElementById('on').innerHTML = data.on;
+    document.getElementById('hue').value = data.hue;
+    document.getElementById('saturation').value = data.saturation;
+    document.getElementById('brightness').value = data.brightness;
+    document.getElementById('pattern').value = data.pattern;
 }
 
 // ----------------------------------------------------------------------------
@@ -76,6 +95,8 @@ let cell_size = 40;
 
 canvas.width = grid_width * cell_size;
 canvas.height = grid_height * cell_size;
+
+// Draw the grid
 
 ctx.strokeStyle = "#8A8E91";
 

@@ -16,27 +16,25 @@
     <h1>Light Panel Control</h1>
 
     <form>
-
-        <button id="power" onclick="sendData(this)" class="%STATE%">Power</button>
-
+        <input id="on" type="checkbox" onclick="sendData()">
         <br>
 
         <label for="hue">Hue:</label>
-        <input class="range" id="hue" type="range" max="255" min="0" value="%HUE%" onchange="sendData(this)" oninput="rangeSlide(this)">
+        <input class="range" id="hue" type="range" max="255" min="0" value="%HUE%" onchange="sendData()" oninput="rangeSlide(this)">
         <span id="hueValue">0</span>
 
         <label>Saturation:</label>
-        <input class="range" id="saturation" type="range" max="255" min="0" value="%SATURATION%" onchange="sendData(this)" oninput="rangeSlide(this)">
+        <input class="range" id="saturation" type="range" max="255" min="0" value="%SATURATION%" onchange="sendData()" oninput="rangeSlide(this)">
         <span id="saturationValue">0</span>
 
         <label>Brightness:</label>
-        <input class="range" id="brightness" type="range" max="255" min="1" value="%BRIGHTNESS%" onchange="sendData(this)" oninput="rangeSlide(this)">
+        <input class="range" id="brightness" type="range" max="255" min="1" value="%BRIGHTNESS%" onchange="sendData()" oninput="rangeSlide(this)">
         <span id="brightnessValue">0</span>
 
         <br>
 
         <label for="pattern">Pattern: </label>
-        <select id="pattern" onchange="sendData(this)">
+        <select id="pattern" onchange="sendData()">
         <option value="0">Color Fill</option>
         <option value="1">Color Fade</option>
         <option value="2">Confetti</option>
