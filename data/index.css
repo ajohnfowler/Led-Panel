@@ -13,7 +13,8 @@
     margin: 0;
     padding: 0;
     font-family: 'Varela Round', sans-serif;
-    color: #8A8E91
+    color: #8A8E91;
+    overflow: hidden;
 }
 
 html,
@@ -24,9 +25,9 @@ body {
 
 #grid {
     margin-top: 10px;
-    border: 5px solid #8A8E91;
+    /*border: 5px solid #8A8E91;*/
     border-radius: 5px;
-    background-color: grey
+    background-color: grey;
 }
 
 form {

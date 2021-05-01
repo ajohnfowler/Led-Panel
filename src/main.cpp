@@ -52,34 +52,6 @@ struct Panel
   
   byte fade_hue = 0;
   CRGB leds[NUM_LEDS];
-  
-  // Methods
-  DynamicJsonDocument getData() {
-    DynamicJsonDocument data(1024);
-
-    data["on"] = on;
-    data["hue"] = hue;
-    data["saturation"] = saturation;
-    data["brightness"] = brightness;
-    data["pattern"] = pattern;
-    
-    return data;
-  }
-
-  void setData(DynamicJsonDocument data) {
-    clear();
-
-    on = data["power"];
-    hue = data["power"];
-    saturation = data["saturation"];
-    brightness = data["brightness"];
-    pattern = data["pattern"];
-  }
-
-  void clear() {
-    FastLED.clear();
-    FastLED.show();
-  }
 };
 
 // ----------------------------------------------------------------------------
@@ -205,8 +177,16 @@ void initWebServer()
 
 void notifyClients()
 {
+  StaticJsonDocument<1024> data;
+
+  data["on"] = panel.on;
+  data["hue"] = panel.hue;
+  data["saturation"] = panel.saturation;
+  data["brightness"] = panel.brightness;
+  data["pattern"] = panel.pattern;
+
   char buffer[1024];
-  size_t len = serializeJson(panel.getData(), buffer);
+  size_t len = serializeJson(data, buffer);
   ws.textAll(buffer, len);
 }
 
@@ -215,7 +195,9 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
   AwsFrameInfo *info = (AwsFrameInfo *)arg;
   if (info->final && info->index == 0 && info->len == len && info->opcode == WS_TEXT)
   {
-    DynamicJsonDocument json(1024);
+
+    //const int size = JSON_OBJECT_SIZE(2);
+    StaticJsonDocument<1024> json;
     DeserializationError err = deserializeJson(json, data);
     if (err)
     {
@@ -223,7 +205,13 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
       Serial.println(err.c_str());
       return;
     }
-    panel.setData(json);
+
+    FastLED.clear();
+    panel.on = json["on"];
+    panel.hue = json["hue"];
+    panel.saturation = json["saturation"];
+    panel.brightness = json["brightness"];
+    panel.pattern = json["pattern"];
     notifyClients();
   }
 }
@@ -277,6 +265,8 @@ void loop()
   ws.cleanupClients();
 
   if (panel.on) {
+    // Set brightness    
+    FastLED.setBrightness(panel.brightness);
     // Show pattern here
     patterns[panel.pattern]();
 
