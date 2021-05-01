@@ -45,8 +45,7 @@ struct Panel
 {
   // state variables
   bool on = false;
-  byte hue = 0;
-  byte saturation = 255;
+  unsigned long color = 0xFFFFFF;
   byte brightness = 32;
   byte pattern = 0;
   
@@ -99,7 +98,6 @@ void initFastLED()
 {
   // Setup Fastleds
   FastLED.addLeds<LED_TYPE, DATA_PIN, COLOR_ORDER>(panel.leds, NUM_LEDS); // Add all the leds to the array
-  FastLED.setBrightness(panel.brightness);                                // Set a starting led brightness
 }
 
 // ----------------------------------------------------------------------------
@@ -108,7 +106,7 @@ void initFastLED()
 
 void color_fill()
 {
-  fill_solid(panel.leds, NUM_LEDS, CHSV(panel.hue, panel.saturation, 255));
+  fill_solid(panel.leds, NUM_LEDS, panel.color);
 }
 
 void color_fade()
@@ -132,8 +130,12 @@ void confetti()
   panel.leds[pos] += CHSV( panel.fade_hue + random8(64), 200, 255);
 }
 
+void grid()
+{
+}
+
 typedef void (*PatternList[])();
-PatternList patterns = { color_fill, color_fade, confetti };
+PatternList patterns = { color_fill, color_fade, confetti, grid };
 
 // ----------------------------------------------------------------------------
 // WiFi Network Initalzation
@@ -180,8 +182,7 @@ void notifyClients()
   StaticJsonDocument<1024> data;
 
   data["on"] = panel.on;
-  data["hue"] = panel.hue;
-  data["saturation"] = panel.saturation;
+  data["color"] = panel.color;
   data["brightness"] = panel.brightness;
   data["pattern"] = panel.pattern;
 
@@ -208,8 +209,7 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
 
     FastLED.clear();
     panel.on = json["on"];
-    panel.hue = json["hue"];
-    panel.saturation = json["saturation"];
+    panel.color = json["color"];
     panel.brightness = json["brightness"];
     panel.pattern = json["pattern"];
     notifyClients();

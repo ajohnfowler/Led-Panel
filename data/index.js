@@ -21,6 +21,18 @@ function onLoad(event) {
 }
 
 // ----------------------------------------------------------------------------
+// Color Conversions
+// ----------------------------------------------------------------------------
+
+function hexToDec(hex) {
+    return parseInt(hex.substring(1, 7), 16);
+}
+
+function decToHex(dec) {
+    return "#" + dec.toString(16);
+}
+
+// ----------------------------------------------------------------------------
 // WebSocket Handling
 // ----------------------------------------------------------------------------
 
@@ -65,17 +77,16 @@ function rangeSlide(object) {
 function getData() {
     return JSON.stringify({
         'on': document.getElementById('on').checked,
-        'hue': document.getElementById('hue').value,
-        'saturation': document.getElementById('saturation').value,
+        'color': hexToDec(document.getElementById('color').value),
         'brightness': document.getElementById('brightness').value,
-        'pattern': document.getElementById('pattern').value
+        'pattern': document.getElementById('pattern').value,
+        'grid': grid_data
     })
 }
 
 function setData(data) {
     document.getElementById('on').checked = data.on;
-    document.getElementById('hue').value = data.hue;
-    document.getElementById('saturation').value = data.saturation;
+    document.getElementById('color').value = decToHex(data.color);
     document.getElementById('brightness').value = data.brightness;
     document.getElementById('pattern').value = data.pattern;
 }
@@ -93,23 +104,18 @@ canvas.style.height = '100%';
 let grid_width = 30;
 let grid_height = 15;
 let cell_size = 40;
-let canvas_data = new Array(grid_width);
-for (let i = 0; i < canvas_data.length; i++) {
-    canvas_data[i] = new Array(grid_height);
-}
 
 let drawing = false;
 let current_cell;
 let grid_data;
-grid_data = new Array(grid_width);
-for (let x = 0; x < grid_data.length; x++) {
-    grid_data[x] = new Array(grid_height);
-}
+clearGrid();
 
 canvas.width = grid_width * cell_size;
 canvas.height = grid_height * cell_size;
 
+// ----------------------------------------------------------------------------
 // Canvas input handeling
+// ----------------------------------------------------------------------------
 
 canvas.addEventListener('mousedown', event => {
     mouseHandler(event)
@@ -125,7 +131,7 @@ canvas.addEventListener('mousemove', event => {
 window.addEventListener('mouseup', event => {
     if (drawing) {
         drawing = false;
-        //sendData();
+        sendData();
     }
 });
 
@@ -152,17 +158,13 @@ function GetGridCell(event) {
 }
 
 function updateCell(cell) {
-    grid_data[cell.x][cell.y] = {
-        'hue': document.getElementById('hue').value,
-        'saturation': document.getElementById('saturation').value,
-        'brightness': document.getElementById('brightness').value
-    };
+    grid_data[cell.x][cell.y] = document.getElementById('color').value;
     drawGrid();
 }
 
-//
+// ----------------------------------------------------------------------------
 // Draw the grid
-//
+// ----------------------------------------------------------------------------
 
 function drawGrid() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -182,8 +184,8 @@ function drawGridCells() {
     ctx.stroke();
 }
 
-function drawCell(x, y, data) {
-    ctx.fillStyle = HSLToHex(data["hue"], data["saturation"], data["brightness"]);
+function drawCell(x, y, color) {
+    ctx.fillStyle = color;
     ctx.fillRect(x * cell_size, y * cell_size, cell_size, cell_size);
 }
 
@@ -204,58 +206,10 @@ function drawGridLines() {
     ctx.stroke();
 }
 
-//
-// HSV to Hex color
-//
-
-function HSLToHex(h, s, l) {
-    s /= 100;
-    l /= 100;
-
-    let c = (1 - Math.abs(2 * l - 1)) * s,
-        x = c * (1 - Math.abs((h / 60) % 2 - 1)),
-        m = l - c / 2,
-        r = 0,
-        g = 0,
-        b = 0;
-
-    if (0 <= h && h < 60) {
-        r = c;
-        g = x;
-        b = 0;
-    } else if (60 <= h && h < 120) {
-        r = x;
-        g = c;
-        b = 0;
-    } else if (120 <= h && h < 180) {
-        r = 0;
-        g = c;
-        b = x;
-    } else if (180 <= h && h < 240) {
-        r = 0;
-        g = x;
-        b = c;
-    } else if (240 <= h && h < 300) {
-        r = x;
-        g = 0;
-        b = c;
-    } else if (300 <= h && h < 360) {
-        r = c;
-        g = 0;
-        b = x;
+function clearGrid() {
+    grid_data = new Array(grid_width);
+    for (let x = 0; x < grid_data.length; x++) {
+        grid_data[x] = new Array(grid_height);
     }
-    // Having obtained RGB, convert channels to hex
-    r = Math.round((r + m) * 255).toString(16);
-    g = Math.round((g + m) * 255).toString(16);
-    b = Math.round((b + m) * 255).toString(16);
-
-    // Prepend 0s, if necessary
-    if (r.length == 1)
-        r = "0" + r;
-    if (g.length == 1)
-        g = "0" + g;
-    if (b.length == 1)
-        b = "0" + b;
-
-    return "#" + r + g + b;
+    drawGrid();
 }

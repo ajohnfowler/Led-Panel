@@ -19,13 +19,8 @@
         <input id="on" type="checkbox" onclick="sendData()">
         <br>
 
-        <label for="hue">Hue:</label>
-        <input class="range" id="hue" type="range" max="255" min="0" onchange="sendData()" oninput="rangeSlide(this)">
-        <span id="hueValue">0</span>
-
-        <label>Saturation:</label>
-        <input class="range" id="saturation" type="range" max="255" min="0" onchange="sendData()" oninput="rangeSlide(this)">
-        <span id="saturationValue">0</span>
+        <label for="color">Color:</label>
+        <input id="color" type="color" value="#888888" onchange="sendData()">
 
         <label>Brightness:</label>
         <input class="range" id="brightness" type="range" max="255" min="1" onchange="sendData()" oninput="rangeSlide(this)">
@@ -38,12 +33,15 @@
         <option value="0">Color Fill</option>
         <option value="1">Color Fade</option>
         <option value="2">Confetti</option>
+        <option value="3">Grid</option>
     </select>
 
     </form>
     <hr>
 
     <canvas id="grid" width="100" height="100"></canvas>
+
+    <button id="clear" onclick="clearGrid()">Clear</button>
 
     <script src="index.js"></script>
 </body>
