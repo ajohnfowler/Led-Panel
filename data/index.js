@@ -6,6 +6,8 @@
  * ----------------------------------------------------------------------------
  */
 
+const NUM_LEDS = 450;
+
 var gateway = `ws://${window.location.hostname}/ws`;
 var websocket;
 
@@ -17,7 +19,7 @@ window.addEventListener('load', onLoad);
 
 function onLoad(event) {
     initWebSocket();
-    drawGrid();
+    clearGrid();
 }
 
 // ----------------------------------------------------------------------------
@@ -109,7 +111,8 @@ let grid_height = 15;
 let cell_size = 40;
 
 let drawing = false;
-let current_cell;
+let current_cells;
+let current_color;
 let grid_data;
 clearGrid();
 
@@ -121,8 +124,10 @@ canvas.height = grid_height * cell_size;
 // ----------------------------------------------------------------------------
 
 canvas.addEventListener('mousedown', event => {
-    mouseHandler(event)
+    current_cells = [];
+    current_color = document.getElementById('color').value;
     drawing = true;
+    mouseHandler(event);
 });
 
 canvas.addEventListener('mousemove', event => {
@@ -134,15 +139,20 @@ canvas.addEventListener('mousemove', event => {
 window.addEventListener('mouseup', event => {
     if (drawing) {
         drawing = false;
-        //sendData();
+        sendData("grid", {
+            "color": hexToDec(current_color),
+            "cells": current_cells
+        });
     }
 });
 
 function mouseHandler(event) {
-    var grid_square = GetGridCell(event);
-    if (grid_square != current_cell) {
-        current_cell = grid_square;
-        updateCell(grid_square);
+    var mouse_pos = getMouesPosition(event);
+    var cell_number_trans = GetCellNumberTransformed(mouse_pos);
+    var cell_number = GetCellNumber(mouse_pos);
+    if (!current_cells.includes(cell_number_trans)) {
+        current_cells.push(cell_number_trans);
+        updateCell(cell_number);
     }
 }
 
@@ -152,16 +162,24 @@ function getMouesPosition(e) {
     return { x: mouseX, y: mouseY };
 }
 
-function GetGridCell(event) {
-    let mouse_pos = getMouesPosition(event)
-    return {
-        x: Math.floor(mouse_pos.x / cell_size),
-        y: Math.floor(mouse_pos.y / cell_size)
+function GetCellNumber(position) {
+    let x = Math.floor(position.x / cell_size);
+    let y = Math.floor(position.y / cell_size);
+    return x + (y * grid_width);
+}
+
+function GetCellNumberTransformed(position) {
+    let x = Math.floor(position.x / cell_size);
+    let y = Math.floor(Math.abs(position.y - canvas.height) / cell_size);
+    if (y % 2) {
+        return (grid_width - x) + (y * grid_width) - 1;
+    } else {
+        return x + (y * grid_width);
     }
 }
 
 function updateCell(cell) {
-    grid_data[cell.x][cell.y] = document.getElementById('color').value;
+    grid_data[cell] = document.getElementById('color').value;
     drawGrid();
 }
 
@@ -177,11 +195,9 @@ function drawGrid() {
 
 function drawGridCells() {
     ctx.beginPath();
-    for (let x = 0; x < grid_width; x++) {
-        for (let y = 0; y < grid_height; y++) {
-            if (grid_data[x][y]) {
-                drawCell(x, y, grid_data[x][y]);
-            }
+    for (let i = 0; i < NUM_LEDS; i++) {
+        if (grid_data[i]) {
+            drawCell(i % grid_width, Math.floor(i / grid_width), grid_data[i]);
         }
     }
     ctx.stroke();
@@ -210,9 +226,7 @@ function drawGridLines() {
 }
 
 function clearGrid() {
-    grid_data = new Array(grid_width);
-    for (let x = 0; x < grid_data.length; x++) {
-        grid_data[x] = new Array(grid_height);
-    }
+    grid_data = new Array(NUM_LEDS);
+    sendData("clear", "");
     drawGrid();
 }
