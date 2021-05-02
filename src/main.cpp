@@ -207,11 +207,22 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len)
       return;
     }
 
-    FastLED.clear();
-    panel.on = json["on"];
-    panel.color = json["color"];
-    panel.brightness = json["brightness"];
-    panel.pattern = json["pattern"];
+    const char *action = json["action"];
+
+    if (strcmp(action, "on") == 0) {
+      FastLED.clear();
+      panel.on = json["data"];
+    }
+    if (strcmp(action, "color") == 0) {
+      panel.color = json["data"];
+    }
+    if (strcmp(action, "brightness") == 0) {
+      panel.brightness = json["data"];
+    }
+    if (strcmp(action, "pattern") == 0) {
+      FastLED.clear();
+      panel.pattern = json["data"];
+    }
     notifyClients();
   }
 }

@@ -16,20 +16,20 @@
     <h1>Light Panel Control</h1>
 
     <form>
-        <input id="on" type="checkbox" onclick="sendData()">
+        <input id="on" type="checkbox" onclick="sendData(this.id, this.checked)">
         <br>
 
         <label for="color">Color:</label>
-        <input id="color" type="color" value="#888888" onchange="sendData()">
+        <input id="color" type="color" value="#888888" onchange="sendData(this.id, hexToDec(this.value))">
 
         <label>Brightness:</label>
-        <input class="range" id="brightness" type="range" max="255" min="1" onchange="sendData()" oninput="rangeSlide(this)">
+        <input class="range" id="brightness" type="range" max="255" min="1" onchange="sendData(this.id, this.value)" oninput="rangeSlide(this)">
         <span id="brightnessValue">0</span>
 
         <br>
 
         <label for="pattern">Pattern: </label>
-        <select id="pattern" onchange="sendData()">
+        <select id="pattern" onchange="sendData(this.id, this.value)">
         <option value="0">Color Fill</option>
         <option value="1">Color Fade</option>
         <option value="2">Confetti</option>

@@ -29,7 +29,7 @@ function hexToDec(hex) {
 }
 
 function decToHex(dec) {
-    return "#" + dec.toString(16);
+    return "#" + String("000000" + dec.toString(16)).slice(-6);
 }
 
 // ----------------------------------------------------------------------------
@@ -62,8 +62,11 @@ function onMessage(event) {
 // Input Handling
 // ----------------------------------------------------------------------------
 
-function sendData() {
-    websocket.send(getData());
+function sendData(id, value) {
+    websocket.send(JSON.stringify({
+        'action': id,
+        "data": value
+    }));
 }
 
 function rangeSlide(object) {
@@ -74,19 +77,19 @@ function rangeSlide(object) {
 // Data Handeling
 // ----------------------------------------------------------------------------
 
-function getData() {
-    return JSON.stringify({
-        'on': document.getElementById('on').checked,
-        'color': hexToDec(document.getElementById('color').value),
-        'brightness': document.getElementById('brightness').value,
-        'pattern': document.getElementById('pattern').value,
-        'grid': grid_data
-    })
-}
+// function getData() {
+//     return JSON.stringify({
+//         'on': document.getElementById('on').checked,
+//         'color': hexToDec(document.getElementById('color').value),
+//         'brightness': document.getElementById('brightness').value,
+//         'pattern': document.getElementById('pattern').value,
+//         'grid': grid_data
+//     })
+// }
 
 function setData(data) {
     document.getElementById('on').checked = data.on;
-    document.getElementById('color').value = decToHex(data.color);
+    document.getElementById('color').value = decToHex(data.color); //decToHex(data.color);
     document.getElementById('brightness').value = data.brightness;
     document.getElementById('pattern').value = data.pattern;
 }
@@ -131,7 +134,7 @@ canvas.addEventListener('mousemove', event => {
 window.addEventListener('mouseup', event => {
     if (drawing) {
         drawing = false;
-        sendData();
+        //sendData();
     }
 });
 
